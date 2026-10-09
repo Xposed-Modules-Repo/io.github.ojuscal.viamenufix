@@ -1,0 +1,60 @@
+# Via Long-Press Menu Fix · Via 长按菜单修正
+
+**Makes the Via browser's long-press menu always expand downwards from the finger.**
+**让 Via 浏览器的长按菜单恒定从手指向下展开。**
+
+Source code / 源码：<https://github.com/Ojuscal/ViaMenuFix> · License: GPL-3.0 · Powered by DeepSeek
+
+---
+
+## 问题 / The problem
+
+Via 的长按菜单会在点击点弹出，并按点击点所在半屏决定展开方向：上半屏向下展开，**下半屏则向上展开**。
+后者让整张菜单跑到手指上方，单手（拇指）够不到，越靠近屏幕顶部的条目越难点。
+
+## 效果 / What it does
+
+- **恒定向下**：菜单顶边始终落在手指下方（留 8dp 间距，避免指尖盖住第一项）
+- **永远完整可见**：下方空间不够时整张菜单自动上移，贴着可视区下沿
+- **不误伤**：只改「手指定位」的菜单；工具栏 / 标签栏按钮那种「锚在控件上」的长按菜单保持原样
+- 无任何权限、不联网、不收集数据
+
+## 安装 / Install
+
+1. 安装 APK（Release 里的 `ViaMenuFix-*.apk`）
+2. LSPosed 管理器 → 模块 → 启用「Via 长按菜单：固定向下展开」
+3. 作用域确认勾选 **Via**（`mark.via`）
+4. 完全退出 Via 后重新打开
+
+## 兼容性 / Compatibility
+
+| 项目 | 值 |
+|---|---|
+| Via 版本 | **7.3.4 (versionCode 20260920)** —— 其它版本混淆名会变，需重新适配 |
+| 包名 | `mark.via` |
+| Xposed API | 82（LSPosed / EdXposed 通用） |
+| 实测环境 | OnePlus 13 / Android 16 / KernelSU + Zygisk Next + LSPosed |
+| 模块权限 | 无 |
+
+## 原理 / How it works
+
+Via 的菜单定位集中在一个方法里，按长按点是否位于下半屏决定 `Gravity.BOTTOM`（向上展开）或
+`Gravity.TOP`（向下展开）。模块 hook 该方法，在窗口首次绘制前把窗口参数改写为
+`gravity = TOP | LEFT`，并把纵坐标夹取到
+`[可视区顶部 + 4dp, 可视区底部 − 菜单高 − 4dp]`，即「恒定向下、放不下就贴着下沿」。
+
+## 已知限制 / Limitations
+
+- 与 Via 的具体版本强绑定（R8 混淆名逐版本变化），升级后需重新适配
+- 只处理手指定位的菜单；地址栏长按的复制/粘贴小菜单走的是另一个类，未改动
+- 落点存在约 141px（一个状态栏）的系统性偏移，原因与实测结论见仓库 README，实测无碍
+
+## 排错 / Troubleshooting
+
+```bash
+adb logcat -d | grep ViaMenuFix
+```
+
+日志标签是 `LSPosedFramework`。正常长按会打印 `fingerY=... menuH=... gravity 83->51 ...`，
+其中 `83->51` 表示「原本会向上展开，已改成向下」。若打印「挂钩失败（Via 版本可能已变化）」，
+说明 Via 升级后混淆名变了。

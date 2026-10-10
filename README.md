@@ -30,8 +30,8 @@ Via 的长按菜单会在点击点弹出，并按点击点所在半屏决定展�
 
 | 项目 | 值 |
 |---|---|
-| Via 版本 | **7.3.4 (versionCode 20260920)** —— 其它版本混淆名会变，需重新适配 |
-| 包名 | `mark.via` |
+| Via 版本 | **7.3.3 与 7.3.4**（实测两版 R8 名称映射一致，一份模块通吃） |
+| 包名 | `mark.via`（国内版）/ `mark.via.gp`（Google Play 版） |
 | Xposed API | 82（LSPosed / EdXposed 通用） |
 | 实测环境 | OnePlus 13 / Android 16 / KernelSU + Zygisk Next + LSPosed |
 | 模块权限 | 无 |
